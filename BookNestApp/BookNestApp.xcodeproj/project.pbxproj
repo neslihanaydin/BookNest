@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FC3A1BFA2CADD82E00ED14A7 /* Book+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3A1BF82CADD82E00ED14A7 /* Book+CoreDataClass.swift */; };
+		FC3A1BFB2CADD82E00ED14A7 /* Book+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3A1BF92CADD82E00ED14A7 /* Book+CoreDataProperties.swift */; };
+		FC3A1BFD2CADDDF200ED14A7 /* AddBookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3A1BFC2CADDDF200ED14A7 /* AddBookView.swift */; };
 		FCA768022CAD9BAE00D40CF0 /* BookNestAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA768012CAD9BAE00D40CF0 /* BookNestAppApp.swift */; };
 		FCA768042CAD9BAE00D40CF0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA768032CAD9BAE00D40CF0 /* ContentView.swift */; };
 		FCA768062CAD9BAF00D40CF0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FCA768052CAD9BAF00D40CF0 /* Assets.xcassets */; };
@@ -16,6 +19,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		FC3A1BF82CADD82E00ED14A7 /* Book+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Book+CoreDataClass.swift"; path = "BookNestApp/Book+CoreDataClass.swift"; sourceTree = "<group>"; };
+		FC3A1BF92CADD82E00ED14A7 /* Book+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Book+CoreDataProperties.swift"; path = "BookNestApp/Book+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		FC3A1BFC2CADDDF200ED14A7 /* AddBookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBookView.swift; sourceTree = "<group>"; };
 		FCA767FE2CAD9BAE00D40CF0 /* BookNestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookNestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCA768012CAD9BAE00D40CF0 /* BookNestAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookNestAppApp.swift; sourceTree = "<group>"; };
 		FCA768032CAD9BAE00D40CF0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -39,6 +45,8 @@
 		FCA767F52CAD9BAE00D40CF0 = {
 			isa = PBXGroup;
 			children = (
+				FC3A1BF82CADD82E00ED14A7 /* Book+CoreDataClass.swift */,
+				FC3A1BF92CADD82E00ED14A7 /* Book+CoreDataProperties.swift */,
 				FCA768002CAD9BAE00D40CF0 /* BookNestApp */,
 				FCA767FF2CAD9BAE00D40CF0 /* Products */,
 			);
@@ -57,6 +65,7 @@
 			children = (
 				FCA768012CAD9BAE00D40CF0 /* BookNestAppApp.swift */,
 				FCA768032CAD9BAE00D40CF0 /* ContentView.swift */,
+				FC3A1BFC2CADDDF200ED14A7 /* AddBookView.swift */,
 				FCA768052CAD9BAF00D40CF0 /* Assets.xcassets */,
 				FCA7680A2CAD9BAF00D40CF0 /* Persistence.swift */,
 				FCA7680C2CAD9BAF00D40CF0 /* BookNestApp.xcdatamodeld */,
@@ -143,8 +152,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FC3A1BFD2CADDDF200ED14A7 /* AddBookView.swift in Sources */,
 				FCA7680B2CAD9BAF00D40CF0 /* Persistence.swift in Sources */,
 				FCA768042CAD9BAE00D40CF0 /* ContentView.swift in Sources */,
+				FC3A1BFA2CADD82E00ED14A7 /* Book+CoreDataClass.swift in Sources */,
+				FC3A1BFB2CADD82E00ED14A7 /* Book+CoreDataProperties.swift in Sources */,
 				FCA7680E2CAD9BAF00D40CF0 /* BookNestApp.xcdatamodeld in Sources */,
 				FCA768022CAD9BAE00D40CF0 /* BookNestAppApp.swift in Sources */,
 			);

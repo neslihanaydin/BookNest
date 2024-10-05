@@ -1,8 +1,8 @@
 //
 //  ContentView.swift
-//  BookNestApp
+//  BookNestPart1
 //
-//  Created by Neslihan Turpcu on 2024-10-02.
+//  Created by Neslihan Turpcu on 2024-10-03.
 //
 
 import SwiftUI
@@ -10,76 +10,115 @@ import CoreData
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
-
+    
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
+        sortDescriptors: [NSSortDescriptor(keyPath: \Book.title, ascending: true)],
         animation: .default)
-    private var items: FetchedResults<Item>
-
+    private var books: FetchedResults<Book>
+    
+    @State var searchText = ""
+    
+    @State private var sortOption: SortOption = .title
+    enum SortOption: String, CaseIterable {
+        case title = "Title"
+        case author = "Author"
+        case yearPublished = "Year Published"
+    }
+    
     var body: some View {
         NavigationView {
             List {
-                ForEach(items) { item in
+                Picker("Sort by", selection: $sortOption) {
+                    ForEach(SortOption.allCases, id: \.self) { option in
+                        Text(option.rawValue).tag(option)
+                    }
+                }
+                .pickerStyle(MenuPickerStyle())
+                ForEach(filterBooks()) { book in
                     NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
+                        Text("Book of \(book.author!)")
                     } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+                        VStack(alignment: .leading) {
+                            Text(book.title ?? "Unknown Title")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .truncationMode(.tail)
+                            
+                            Text(book.author ?? "Unknown Author")
+                                .font(.footnote)
+                                .foregroundStyle(.gray)
+                        }
+                        .padding(.vertical, 8)
                     }
                 }
                 .onDelete(perform: deleteItems)
             }
+            .searchable(text: $searchText, prompt: "Search by title or author...")
+            .navigationTitle("Books")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
                 }
                 ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                    NavigationLink {
+                        AddBookView()
+                            .environment(\.managedObjectContext, viewContext)
+                    } label : {
+                        Label("Add Book", systemImage: "plus")
                     }
                 }
             }
-            Text("Select an item")
+            Text("Select an book")
         }
     }
-
+    
     private func addItem() {
         withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
+            let newItem = Book(context: viewContext)
+            newItem.title = "Book \(books.count)"
+            newItem.author = "Author \(books.count)"
+            newItem.yearPublished = 2024
+            newItem.isFavorite = false
+            
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
     }
-
+    
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
+            offsets.map { books[$0] }.forEach(viewContext.delete)
+            
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
+        }
+    }
+    
+    private func filterBooks() -> [Book] {
+        
+        let filtered = searchText.isEmpty ? Array(books) : books.filter { book in
+            let titleMatches = book.title?.localizedCaseInsensitiveContains(searchText) ?? false
+            let authorMatches = book.author?.localizedCaseInsensitiveContains(searchText) ?? false
+            return titleMatches || authorMatches
+        }
+        switch sortOption {
+        case .title:
+            return filtered.sorted { ($0.title ?? "") < ($1.title ?? "") }
+        case .author:
+            return filtered.sorted { ($0.author ?? "") < ($1.author ?? "") }
+        case .yearPublished:
+            return filtered.sorted { ($0.yearPublished) < ($1.yearPublished) }
         }
     }
 }
-
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
 
 #Preview {
     ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
