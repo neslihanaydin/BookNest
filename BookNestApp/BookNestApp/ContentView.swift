@@ -1,8 +1,8 @@
 //
 //  ContentView.swift
-//  BookNestApp
+//  BookNestPart1
 //
-//  Created by Neslihan Turpcu on 2024-10-02.
+//  Created by Neslihan Turpcu on 2024-10-03.
 //
 
 import SwiftUI
@@ -11,28 +11,18 @@ import CoreData
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     
-    @State var searchText = ""
-    @State private var searchCategory: SearchCategory = .title
-    @State private var sortOption: SortOption = .title
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \Book.title, ascending: true)],
+        animation: .default)
+    private var books: FetchedResults<Book>
     
+    @State var searchText = ""
+    
+    @State private var sortOption: SortOption = .title
     enum SortOption: String, CaseIterable {
         case title = "Title"
         case author = "Author"
         case yearPublished = "Year Published"
-    }
-    
-    enum SearchCategory: String, CaseIterable {
-        case title = "Title"
-        case author = "Author"
-    }
-    
-    @FetchRequest var books: FetchedResults<Book>
-    
-    init() {
-        let request: NSFetchRequest<Book> = Book.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \Book.title, ascending: true)]
-        
-        _books = FetchRequest(fetchRequest: request)
     }
     
     var body: some View {
@@ -44,36 +34,27 @@ struct ContentView: View {
                     }
                 }
                 .pickerStyle(MenuPickerStyle())
-                HStack {
-                    TextField("Search by \(searchCategory.rawValue.lowercased())", text: $searchText)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    
-                    Picker("", selection: $searchCategory) {
-                        ForEach(SearchCategory.allCases, id: \.self) { category in
-                            Text(category.rawValue).tag(category)
-                        }
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-                
-                ForEach(filteredBooks(), id: \.self) { book in
+                ForEach(filterBooks()) { book in
                     NavigationLink {
-                        HStack {
-                            Text("Book at \(book.title!)")
-                        }
+                        Text("Book of \(book.author!)")
                     } label: {
-                        VStack {
-                            Text(book.title!)
+                        VStack(alignment: .leading) {
+                            Text(book.title ?? "Unknown Title")
                                 .font(.title2)
-                            Text(book.author!)
+                                .fontWeight(.semibold)
+                                .truncationMode(.tail)
+                            
+                            Text(book.author ?? "Unknown Author")
                                 .font(.footnote)
+                                .foregroundStyle(.gray)
                         }
-                        
+                        .padding(.vertical, 8)
                     }
                 }
                 .onDelete(perform: deleteItems)
             }
-            // .searchable(text: $searchText, prompt: "search...")
+            .searchable(text: $searchText, prompt: "Search by title or author...")
+            .navigationTitle("Books")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
@@ -82,12 +63,29 @@ struct ContentView: View {
                     NavigationLink {
                         AddBookView()
                             .environment(\.managedObjectContext, viewContext)
-                    } label: {
-                        Label("Add Item", systemImage: "plus")
+                    } label : {
+                        Label("Add Book", systemImage: "plus")
                     }
                 }
             }
-            Text("Select an item")
+            Text("Select an book")
+        }
+    }
+    
+    private func addItem() {
+        withAnimation {
+            let newItem = Book(context: viewContext)
+            newItem.title = "Book \(books.count)"
+            newItem.author = "Author \(books.count)"
+            newItem.yearPublished = 2024
+            newItem.isFavorite = false
+            
+            do {
+                try viewContext.save()
+            } catch {
+                let nsError = error as NSError
+                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            }
         }
     }
     
@@ -103,30 +101,14 @@ struct ContentView: View {
             }
         }
     }
-    private func filteredBooks() -> [Book] {
-        /*
-         With this approach, the fetch request is made again, and it does not retrieve the updated data when returning to the main page after adding a new book. Therefore, using the .filter method is more efficient.
-         
-         let fetchRequest: NSFetchRequest<Book> = Book.fetchRequest()
-         fetchRequest.predicate = buildPredicate()
-         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \Book.title, ascending: true)]
-         
-         do {
-         return try viewContext.fetch(fetchRequest)
-         } catch {
-         print("Books Fetch Failed: \(error.localizedDescription)")
-         return []
-         }
-         */
-        let filtered = searchText.isEmpty ? Array(books) : books.filter { book in
-            switch searchCategory {
-            case .title:
-                return book.title?.localizedCaseInsensitiveContains(searchText) ?? false
-            case .author:
-                return book.author?.localizedCaseInsensitiveContains(searchText) ?? false
-            }
-        }
+    
+    private func filterBooks() -> [Book] {
         
+        let filtered = searchText.isEmpty ? Array(books) : books.filter { book in
+            let titleMatches = book.title?.localizedCaseInsensitiveContains(searchText) ?? false
+            let authorMatches = book.author?.localizedCaseInsensitiveContains(searchText) ?? false
+            return titleMatches || authorMatches
+        }
         switch sortOption {
         case .title:
             return filtered.sorted { ($0.title ?? "") < ($1.title ?? "") }
@@ -134,19 +116,6 @@ struct ContentView: View {
             return filtered.sorted { ($0.author ?? "") < ($1.author ?? "") }
         case .yearPublished:
             return filtered.sorted { ($0.yearPublished) < ($1.yearPublished) }
-        }
-        
-    }
-    private func buildPredicate() -> NSPredicate {
-        if searchText == "" {
-            return NSPredicate(value: true)
-        } else {
-            switch searchCategory {
-            case .title:
-                return NSPredicate(format: "title CONTAINS[cd] %@", searchText)
-            case .author:
-                return NSPredicate(format: "author CONTAINS[cd] %@", searchText)
-            }
         }
     }
 }
