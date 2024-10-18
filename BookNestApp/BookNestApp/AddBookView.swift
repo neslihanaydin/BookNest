@@ -97,7 +97,7 @@ struct AddBookView: View {
         let newBook = Book(context: viewContext)
         newBook.author = bookAuthor
         newBook.title = bookTitle
-        newBook.isFavorite = true
+        newBook.isFavorite = false
         newBook.yearPublished = Int16(yearPublished) ?? 0
         do {
             try viewContext.save()
