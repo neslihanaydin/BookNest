@@ -26,50 +26,50 @@ struct ContentView: View {
     }
     
     var body: some View {
-        NavigationView {
-            List {
-                Picker("Sort by", selection: $sortOption) {
-                    ForEach(SortOption.allCases, id: \.self) { option in
-                        Text(option.rawValue).tag(option)
-                    }
-                }
-                .pickerStyle(MenuPickerStyle())
-                ForEach(filterBooks()) { book in
-                    NavigationLink {
-                        Text("Book of \(book.author!)")
-                    } label: {
-                        VStack(alignment: .leading) {
-                            Text(book.title ?? "Unknown Title")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .truncationMode(.tail)
-                            
-                            Text(book.author ?? "Unknown Author")
-                                .font(.footnote)
-                                .foregroundStyle(.gray)
+            NavigationView {
+                List {
+                    Picker("Sort by", selection: $sortOption) {
+                        ForEach(SortOption.allCases, id: \.self) { option in
+                            Text(option.rawValue).tag(option)
                         }
-                        .padding(.vertical, 8)
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    ForEach(filterBooks()) { book in
+                        NavigationLink {
+                            //Text("Book of \(book.author!)")
+                            BookDetailView(book: book)
+                        } label: {
+                            VStack(alignment: .leading) {
+                                Text(book.title ?? "Unknown Title")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .truncationMode(.tail)
+                                
+                                Text(book.author ?? "Unknown Author")
+                                    .font(.footnote)
+                                    .foregroundStyle(.gray)
+                            }
+                            .padding(.vertical, 8)
+                        }
+                    }
+                    .onDelete(perform: deleteItems)
+                }
+                .searchable(text: $searchText, prompt: "Search by title or author...")
+                .navigationTitle("Books")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        EditButton()
+                    }
+                    ToolbarItem {
+                        NavigationLink {
+                            AddBookView()
+                                .environment(\.managedObjectContext, viewContext)
+                        } label : {
+                            Label("Add Book", systemImage: "plus")
+                        }
                     }
                 }
-                .onDelete(perform: deleteItems)
             }
-            .searchable(text: $searchText, prompt: "Search by title or author...")
-            .navigationTitle("Books")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    NavigationLink {
-                        AddBookView()
-                            .environment(\.managedObjectContext, viewContext)
-                    } label : {
-                        Label("Add Book", systemImage: "plus")
-                    }
-                }
-            }
-            Text("Select an book")
-        }
     }
     
     private func addItem() {
